@@ -1,0 +1,34 @@
+function Enemy (dx, dy, vx, vy, width, height) 
+{
+        
+        if (dx === undefined) { this.dx = 0; }
+        if (dy === undefined) { this.dy = 0; }
+        if (vx === undefined) { this.vx = 0; }
+        if (vy === undefined) { this.vy = 0; }
+        if (width === undefined) { this.width = 20; }
+        if (height === undefined) { this.height = 20; }
+        this.dx = dx;
+        this.dy = dy;
+        this.vx = vx;
+        this.vy = vy;
+        this.width = width;
+        this.height = height;
+}
+
+Enemy.prototype = {
+
+    getDX() { return this.dx; },
+    getDY() { return this.dy; },
+    getVX() { return this.vx; },
+    getVY() { return this.vy; },
+    getWidth() { return this.width; },
+    getHeight() { return this.height; },
+    setDX(dx) { this.dx = dx; },
+    setDY(dy) { this.dy = dy; },
+    setVX(vx) { this.vx = vx; },
+    setVY(vy) { this.vy = vy;},
+    setWidth(width) { this.width = width; },
+    setHeight(height) { this.height = height; },
+    getCenterX() { return this.dx + this.width/2 },
+    getCenterY() { return this.dy + this.height/2 }
+}

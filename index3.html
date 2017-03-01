@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+        <meta charset="utf-8">
+		<title>Boxed in</title>
+        
+        <!--  This gets the enemy class used to create the enemies for the game -->
+		<script src="enemy.html"></script> 
+        
+        <!-- This script holds the game -->
+        <script src="game2.js"></script>
+
+	</head>
+
+    <!-- When the body is loaded call the init function which starts the game loop, on pressing a key call the checkKeys button to listen for arrow keys to move the player -->
+	<body onload="init()" onkeydown="checkKeys(event)">
+
+        <!-- Creates a canvas to draw the game on to -->
+		<canvas id="canvas" width="1200" height="700" style="background-color: #CCC;">
+			Canvas is not supported
+		</canvas>
+        
+
+	</body>
+
+</html>

@@ -230,8 +230,13 @@
                 
     }
 
+    //This function draws the points on to the screen
     function drawPoints() {
+        
+        //for all the point objects
         for (var i = 0; i < points.length; i++) {
+            
+            /* Draw arcs for all the of the points */
             this.ctx.beginPath();
             this.ctx.arc(points[i].x, points[i].y, points[i].radius,0, 2*Math.PI);
             this.ctx.fillStyle = "yellow";
@@ -239,12 +244,23 @@
             this.ctx.stroke();
             this.ctx.fill();
             this.ctx.closePath();
+            
+            //calls the check collision function for the points
             var collected = collectPoints(points[i]);
+            
+            /*
+                If it is returned true a point has been collected 
+            */
+            
             if (collected) {
+                
+                //remove this point from the array
                 points.splice(i, 1);
+                
+                //take a point off the total points
                 this.pointsLeft = this.pointsLeft - 1;
+                
                 //if the player collected all the points        
-           
                 if (this.pointsLeft < 1) {
 
                    //stop the animation loop
@@ -330,9 +346,8 @@
         }
     }
 
+    // Checks collision from the player and the points
     function collectPoints(point) {
-    
-            
         
         //if the distance between the center point of the enemy and the center point of the player is less than the enemies width divided by two plus the players width divided by two
         if (checkDistance(point.x, point.y, this.dx+12, this.dy+12) < (point.radius + 12/2)) {
@@ -361,135 +376,164 @@
             return l2;
         }
     }
-            
-            function enemyHitsEnemy() {
-                for (var i =0; i < enemies.length; i++) {
-                    for (var x =0; x < enemies.length; x++) {
+    
+
+    //This function checks if an enemy hits another enemy
+    function enemyHitsEnemy() {
+        
+        for (var i =0; i < enemies.length; i++) {
+            for (var x =0; x < enemies.length; x++) {
+                
+                //keeps the enemies bounds being compared to itself
+                if (x != i) {
+                    
+                    //if the distance between the enemies x, y compared to the widths of each enemy
+                    if (checkDistance(enemies[i].getDX(), enemies[i].getDY(), enemies[x].getDX(), enemies[x].getDY()) < getSmallest(enemies[i].getWidth(), enemies[x].getWidth())) {
                         
-                        if (x != i) {
-                            if (checkDistance(enemies[i].getDX(), enemies[i].getDY(), enemies[x].getDX(), enemies[x].getDY()) < getSmallest(enemies[i].getWidth(), enemies[x].getWidth())) {
-                                var w;
-                                if (enemies[i].getWidth() < enemies[x].getWidth()) {
-                                    w = enemies[i].getWidth();
-                                    
-                                    enemies[x].setWidth(enemies[x].getWidth() + enemies[i].getWidth());
-                                    enemies[x].setHeight(enemies[x].getHeight() + enemies[i].getHeight());
-                                    enemies.splice(i, 1);
-                                }
-                                else {
-                                    w = enemies[x].getWidth();
-                                    enemies[i].setWidth(enemies[i].getWidth() + enemies[x].getWidth());
-                                    enemies[i].setHeight(enemies[i].getHeight() + enemies[x].getHeight());
-                                    enemies.splice(x, 1);
-                                }
-                            }
+                        //if the first enemy is smaller than the second 
+                        if (enemies[i].getWidth() < enemies[x].getWidth()) {
+                            
+                            /* adds the smaller ones w and h to the larger ones */
+                            enemies[x].setWidth(enemies[x].getWidth() + enemies[i].getWidth());
+                            enemies[x].setHeight(enemies[x].getHeight() + enemies[i].getHeight());
+                            
+                            //remove the smaller one from the enemies array
+                            enemies.splice(i, 1);
+                            
                         }
-                        
+                        else {
+                            
+                            /* adds the smaller one to the larger one */
+                            enemies[i].setWidth(enemies[i].getWidth() + enemies[x].getWidth());
+                            enemies[i].setHeight(enemies[i].getHeight() + enemies[x].getHeight());
+                            
+                            //removes the smaller enemy from the enemies array
+                            enemies.splice(x, 1);
+                        }
                     }
-                }
-            }
+                }            
+            } //close inside for loop        
+        } //closes outside for loop
+    }
             
-            function drawEnemies() {
-                for (var i =0; i < enemies.length; i++) {
-                    this.ctx.beginPath();
-                    checkAngle(this.dx, this.dy, enemies[i].getDX(), enemies[i].getDY());
+    function drawEnemies() {
+        
+        // loop through the enemies
+        for (var i =0; i < enemies.length; i++) {
+            
+            //starts the path for the enemies
+            this.ctx.beginPath();
+            
+            //calls the check angle difference between the player and enemy
+            checkAngle(this.dx, this.dy, enemies[i].getDX(), enemies[i].getDY());
   
-                  
-                      
-                //sets boundaries so the enemy can't leave the canvas
-                if (enemies[i].getDX() > this.can.width-enemies[i].getWidth() || enemies[i].getDX() < 1) {
-                    enemies[i].setDX(enemies[i].getDX() - enemies[i].getVX());
-                }
-                if (enemies[i].getDY() > this.can.height-enemies[i].getHeight() || enemies[i].getDY() < 1) {
-                    enemies[i].setDY(enemies[i].getDY() - enemies[i].getVY());
-                }
+             //sets boundaries so the enemy can't leave the canvas
+            if (enemies[i].getDX() > this.can.width-enemies[i].getWidth() || enemies[i].getDX() < 1) {
                 
-                //checks if the distance between the middle point of the player and the enemy is less than 300px
-                if (checkDistance(this.dx, this.dy, enemies[i].getCenterX(), enemies[i].getCenterY()) < 300) {
-                   
-                    //rounds the float value to an int for comparison
-                    var intAngle = parseInt(this.angle, 10);
-
-            /*
-                Box angles defined
-                
-                        90    
-                     ___|___
-                     |  |  |
-                  0 -|--|--|- 180  
-                     |  |  |
-                     ---|---        
-                       -90
-             */     
-                  
-                    if (intAngle > 0 && intAngle < 90) {
-                        //between 0 and 90
-                        enemies[i].setVX(-1);
-                        enemies[i].setVY(-1);
-                    }
-                    else if (intAngle > 90 && intAngle < 180) {
-                        //between 90 and 180
-                        enemies[i].setVX(1);
-                        enemies[i].setVY(-1);
-                        
-                    }
-                    else if (intAngle < 0 && intAngle > -90) {
-                        //between 0 and -90
-                        enemies[i].setVX(-1);
-                        enemies[i].setVY(1);
-                    }
-                    else if (intAngle < -90 && intAngle > -180) {
-                        //between -90 and -180
-                        enemies[i].setVX(1);
-                        enemies[i].setVY(1);
-                    }
-                    else if (intAngle == 0) {
-                        //straight left;
-                        enemies[i].setVX(-1);
-                        enemies[i].setVY(0);
-                    }
-                    else if (intAngle == 90) {
-                        //straight up
-                        enemies[i].setVX(0);
-                        enemies[i].setVY(-1);
-                    } 
-                    else if (intAngle == 180) {
-                        //straight right
-                        enemies[i].setVX(1);
-                        enemies[i].setVY(0);
-                    } 
-                    else if (intAngle == -90) {
-                        //straight down 
-                        enemies[i].setVX(0);
-                        enemies[i].setVY(1);
-                    }
-
-                }
-                
-                //add the velocity to the enemies current X and Y positions
-                    
-                enemies[i].setDX(enemies[i].getDX() + enemies[i].getVX());
-                enemies[i].setDY(enemies[i].getDY() + enemies[i].getVY());    
-                        
-
-                    //makes it green
-                    this.ctx.beginPath();
-                    this.ctx.fillStyle = "green";
-                    this.ctx.strokeStyle = "green";
-                    this.ctx.rect(enemies[i].getDX(), enemies[i].getDY(),enemies[i].getWidth(), enemies[i].getHeight());
-                    this.ctx.stroke();
-                    this.ctx.fill();
-
-                    //closes the path for the enemy
-                    this.ctx.closePath();
-                    
-                    checkCollision(enemies[i]);  
-                    
-                    
-                    enemyHitsEnemy(); 
-                    
-                }
+                //takes the vx from the dx
+                enemies[i].setDX(enemies[i].getDX() - enemies[i].getVX());
             }
+            if (enemies[i].getDY() > this.can.height-enemies[i].getHeight() || enemies[i].getDY() < 1) {
+                
+                //takes the vy from the dy
+                enemies[i].setDY(enemies[i].getDY() - enemies[i].getVY());
+            }
+                
+            //checks if the distance between the middle point of the player and the enemy is less than 300px
+            if (checkDistance(this.dx, this.dy, enemies[i].getCenterX(), enemies[i].getCenterY()) < 300) {
+                   
+                //rounds the float value to an int for comparison
+                var intAngle = parseInt(this.angle, 10);
+
+                /*
+                    Box angles defined
+
+                            90    
+                         ___|___
+                         |  |  |
+                      0 -|--|--|- 180  
+                         |  |  |
+                         ---|---        
+                           -90
+                 */     
+
+                //up and left
+                if (intAngle > 0 && intAngle < 90) {
+                    //between 0 and 90
+                    enemies[i].setVX(-1);
+                    enemies[i].setVY(-1);
+                }
+                
+                //up and right
+                else if (intAngle > 90 && intAngle < 180) {
+                    //between 90 and 180
+                    enemies[i].setVX(1);
+                    enemies[i].setVY(-1);
+                }
+                
+                //down and left
+                else if (intAngle < 0 && intAngle > -90) {
+                    //between 0 and -90
+                    enemies[i].setVX(-1);
+                    enemies[i].setVY(1);
+                }
+
+                //down and right
+                else if (intAngle < -90 && intAngle > -180) {
+                    //between -90 and -180
+                    enemies[i].setVX(1);
+                    enemies[i].setVY(1);
+                }
+                
+                //straight left;
+                else if (intAngle == 0) {
+                    enemies[i].setVX(-1);
+                    enemies[i].setVY(0);
+                }
+                
+                //straight up
+                else if (intAngle == 90) {
+                    enemies[i].setVX(0);
+                    enemies[i].setVY(-1);
+                } 
+                
+                else if (intAngle == 180) {
+                    //straight right
+                    enemies[i].setVX(1);
+                    enemies[i].setVY(0);
+                } 
+                else if (intAngle == -90) {
+                    //straight down 
+                    enemies[i].setVX(0);
+                    enemies[i].setVY(1);
+                }
+
+            }
+                
+            //add the velocity to the enemies current X and Y positions
+            enemies[i].setDX(enemies[i].getDX() + enemies[i].getVX());
+            enemies[i].setDY(enemies[i].getDY() + enemies[i].getVY());    
+                        
+            //draws the square
+            this.ctx.beginPath();
+            this.ctx.fillStyle = "green";
+            this.ctx.strokeStyle = "green";
+            this.ctx.rect(enemies[i].getDX(), enemies[i].getDY(),enemies[i].getWidth(), enemies[i].getHeight());
+            this.ctx.stroke();
+            this.ctx.fill();
+
+            //closes the path for the enemy
+            this.ctx.closePath();
+                    
+            //checks collision with player
+            checkCollision(enemies[i]);  
+                    
+            //checks if the enemy hits another enemy
+            enemyHitsEnemy(); 
+                    
+        } //
+    
+    }  //closes drawing enemies
 
 
             function createEnemies() {

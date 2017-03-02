@@ -61,8 +61,14 @@
     //holds the enemies
     var enemies;
 
+    //holds the collectibles
+    var points;
+
     //holds current state of player
     var alive = true;
+
+    //holds amount of points left;
+    var pointsLeft = 10;
 
     //called when the body has been loaded
     function init() {
@@ -82,6 +88,9 @@
         //calls function to create enemies
         createEnemies();
 				
+        //calls the function to create collectibles
+        createPoints();
+        
         //starts the game loop
         gameLoop();
         
@@ -93,21 +102,29 @@
         //clears the canvas
         this.ctx.clearRect(0,0, this.can.width, this.can.height);      
         
-        //calls function to draw all the enemy boxes
-        drawEnemies();
+
         
         //if the player is still alive
         if (this.alive) {
+            
+            //calls function to draw all the enemy boxes
+            drawEnemies();
+        
+            //calls the function to draw the points
+            drawPoints();
             
             //calls function to draw the players box 
             drawSquare();
             
             //calls function to draw the players health on the screen
             drawHealth();
+            
+            //function that tells the browser that you wish to perform an animation and requests that the browser call this function to update the animation before the next repaint.
+            this.loop = requestAnimationFrame(gameLoop);
+            
         }
 
-        //function that tells the browser that you wish to perform an animation and requests that the browser call this function to update the animation before the next repaint.
-        this.loop = requestAnimationFrame(gameLoop);
+
             
     }
         
@@ -213,6 +230,36 @@
                 
     }
 
+    function drawPoints() {
+        for (var i = 0; i < points.length; i++) {
+            this.ctx.beginPath();
+            this.ctx.arc(points[i].x, points[i].y, points[i].radius,0, 2*Math.PI);
+            this.ctx.fillStyle = "yellow";
+            this.ctx.strokeStyle = "black";
+            this.ctx.stroke();
+            this.ctx.fill();
+            this.ctx.closePath();
+            var collected = collectPoints(points[i]);
+            if (collected) {
+                points.splice(i, 1);
+                this.pointsLeft = this.pointsLeft - 1;
+                //if the player collected all the points        
+           
+                if (this.pointsLeft < 1) {
+
+                   //stop the animation loop
+                    stop();
+
+                   //call the win screen
+                    win();
+                    
+                    break;
+                }    
+                
+            }
+        }
+    }
+
     /* This function checks the distance between two points*/
     function checkDistance(x1, y1, x2, y2) {
         
@@ -281,6 +328,20 @@
             }
 
         }
+    }
+
+    function collectPoints(point) {
+    
+            
+        
+        //if the distance between the center point of the enemy and the center point of the player is less than the enemies width divided by two plus the players width divided by two
+        if (checkDistance(point.x, point.y, this.dx+12, this.dy+12) < (point.radius + 12/2)) {
+   
+            return true;
+        }
+        
+        return false;
+        
     }
        
     //returns the smallest of two values
@@ -434,10 +495,20 @@
             function createEnemies() {
                 this.enemies = new Array();
                 for (var i =0; i < 20; i++) {
-                    var randomX = Math.floor((Math.random() * this.can.width));
-                    var randomY = Math.floor((Math.random() * this.can.height));
+                    var randomX = Math.floor((Math.random() * this.can.width-20));
+                    var randomY = Math.floor((Math.random() * this.can.height-20));
                     this.enemies[i] = new Enemy(randomX, randomY, 0, 0, 20, 20);
                 }
+            }
+
+            function createPoints() {
+                this.points = new Array();
+                for (var i =0; i < 10; i++) {
+                    var randomX = Math.floor((Math.random() * this.can.width-10));
+                    var randomY = Math.floor((Math.random() * this.can.height-10));
+                    this.points[i] = {x: randomX, y: randomY, radius: 5};
+                }
+                console.log("Point count: " + this.points.length);
             }
 
             function dead()
@@ -456,6 +527,26 @@
                 this.ctx.fillStyle = "white";
                 this.ctx.fillText("Your dead!", this.can.width/2, this.can.height/2);
                 this.ctx.closePath();
+            }
+
+            function win() {
+                
+                //games over
+                this.alive = false;
+                
+                this.ctx.beginPath();
+                this.ctx.fillStyle = "blue";
+                this.ctx.rect(0, 0, this.can.width, this.can.height); 
+                this.ctx.fill(); 
+                this.ctx.closePath();
+                
+                this.ctx.beginPath();
+                this.ctx.font = "60px Arial";
+                this.ctx.textAlign = "center";
+                this.ctx.fillStyle = "white";
+                this.ctx.fillText("Your win!", this.can.width/2, this.can.height/2);
+                this.ctx.closePath();
+                
             }
             
 			function checkKeys(e) {

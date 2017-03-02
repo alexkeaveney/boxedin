@@ -564,10 +564,10 @@
         for (var i =0; i < 20; i++) {
             
             //get random x between 0 and canvas x minus the size of the enemy
-            var randomX = Math.floor((Math.random() * this.can.width-20));
+            var randomX = Math.floor((Math.random() * (this.can.width-40+1)));
             
             //get random y between 0 and canvas y minus the size of the enemy
-            var randomY = Math.floor((Math.random() * this.can.height-20));
+            var randomY = Math.floor((Math.random() * (this.can.height-40+1)));
             
             //adds a new enemy at the random coordinates made to the enemies array
             this.enemies[i] = new Enemy(randomX, randomY, 0, 0, 20, 20);

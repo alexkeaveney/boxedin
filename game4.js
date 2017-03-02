@@ -67,6 +67,9 @@
     //holds current state of player
     var alive = true;
 
+    //boolean to hold if the player won or lost
+    var win = false;
+
     //holds amount of points left;
     var pointsLeft = 10;
 
@@ -122,6 +125,15 @@
             //function that tells the browser that you wish to perform an animation and requests that the browser call this function to update the animation before the next repaint.
             this.loop = requestAnimationFrame(gameLoop);
             
+        }
+        else if (this.win) {
+            console.log("You win");
+            stop();
+            winning();
+        }
+        else {
+            stop();
+            dead();
         }
 
 
@@ -265,9 +277,15 @@
 
                    //stop the animation loop
                     stop();
+                    
+                    console.log("Points left: " + this.pointsLeft);
 
-                   //call the win screen
-                    win();
+                   
+                    
+                    this.win = true;
+                    
+                    //call the win screen
+                    winning();
                     
                     break;
                 }    
@@ -565,9 +583,19 @@
         //loop from 0 to 9
         for (var i =0; i < 10; i++) {
             
+            /**
+                 * Returns a random integer between min (inclusive) and max (inclusive)
+                 * Using Math.round() will give you a non-uniform distribution! 
+                 * From Mozilla Site: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random    
+                    
+                Math.floor(Math.random() * (max - min + 1)) + min;
+                    
+            */    
+            
+            
             //creates random x and y for points keeping them on the map
-            var randomX = Math.floor((Math.random() * this.can.width-10));
-            var randomY = Math.floor((Math.random() * this.can.height-10));
+            var randomX = Math.floor((Math.random() * (this.can.width-20+1))+20);
+            var randomY = Math.floor((Math.random() * (this.can.height-20+1))+20);
             
             //creates an object holding x, y and a radius for the points
             this.points[i] = {x: randomX, y: randomY, radius: 5};
@@ -597,7 +625,7 @@
         this.ctx.closePath();
     }
 
-    function win() {
+    function winning() {
                 
         //games over
         this.alive = false;
@@ -614,7 +642,7 @@
         this.ctx.font = "60px Arial";
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "white";
-        this.ctx.fillText("Your win!", this.can.width/2, this.can.height/2);
+        this.ctx.fillText("You win!", this.can.width/2, this.can.height/2);
         this.ctx.closePath();
                 
     }
